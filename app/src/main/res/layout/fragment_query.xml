@@ -1,47 +1,237 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp"
-    android:background="@color/bg_background">
+    android:background="@color/bg_background"
+    android:fillViewport="true">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Consultar Eventos"
-        android:textColor="@color/yellow_primary"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:paddingBottom="16dp"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:hint="Buscar por categoría o descripción..."
-        app:hintTextColor="@color/yellow_primary"
-        app:boxStrokeColor="@color/yellow_primary"
-        app:startIconDrawable="@drawable/ic_search"
-        app:startIconTint="@color/yellow_primary">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/et_search_query"
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="Consultas de Eventos"
+            android:textColor="@color/yellow_primary"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:paddingBottom="12dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Criterio de Consulta:"
             android:textColor="@color/white"
-            android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ingresa una palabra clave arriba para consultar, modificar o eliminar tus eventos guardados."
-        android:textColor="@color/text_secondary"
-        android:textSize="16sp"
-        android:gravity="center"
-        android:layout_marginTop="40dp"/>
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:layout_marginBottom="16dp">
 
-</LinearLayout>
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cg_query_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_by_range"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Por rango"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_by_day"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Por día"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_by_mes"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Por mes"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_by_year"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Por año"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"/>
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Filtrar por Categoría:"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cg_query_categories"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_q_all"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Todos"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_q_cita"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Cita"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_q_junta"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Junta"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_q_entrega"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Entrega de Proyecto"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"/>
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <LinearLayout
+            android:id="@+id/container_date_inputs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_fecha_inicial"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:hint="Fecha Inicial"
+                app:hintTextColor="@color/yellow_primary"
+                app:boxStrokeColor="@color/yellow_primary"
+                app:startIconDrawable="@drawable/ic_calendar"
+                app:startIconTint="@color/yellow_primary">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_query_start_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:focusable="false"
+                    android:clickable="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_fecha_final"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="Fecha Final"
+                app:hintTextColor="@color/yellow_primary"
+                app:boxStrokeColor="@color/yellow_primary"
+                app:startIconDrawable="@drawable/ic_calendar"
+                app:startIconTint="@color/yellow_primary">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_query_end_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:focusable="false"
+                    android:clickable="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_run_query"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="20dp"
+            android:backgroundTint="@color/yellow_primary"
+            android:text="Consultar"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            app:cornerRadius="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Resultados de la Búsqueda:"
+            android:textColor="@color/yellow_primary"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_query_results"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false" />
+
+    </LinearLayout>
+</ScrollView>

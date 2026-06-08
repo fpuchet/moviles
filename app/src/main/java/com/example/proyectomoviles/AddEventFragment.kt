@@ -95,7 +95,16 @@ class AddEventFragment : Fragment() {
             )
             timePicker.show()
         }
+        // 1. Vincular el Spinner de Estatus del XML
+        val spinnerStatus: Spinner = vista.findViewById(R.id.sp_add_status)
 
+        // 2. Definir los estados obligatorios del PDF
+        val listaEstados = listOf("Pendiente", "Realizado", "Aplazado")
+
+        // 3. Crear el adaptador nativo y asignarlo
+        val adapterEstados = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, listaEstados)
+        adapterEstados.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerStatus.adapter = adapterEstados
         // 5. VALIDACIÓN Y CAPTURA: Botón Guardar Evento
         val etEventDescription: TextInputEditText = vista.findViewById(R.id.et_event_description)
         val btnSaveEvent: MaterialButton = vista.findViewById(R.id.btn_save_event)
