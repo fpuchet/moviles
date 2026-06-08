@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_background"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- TÍTULO DE LA PANTALLA -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Crear Nuevo Evento"
+            android:textColor="@color/yellow_primary"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:paddingBottom="16dp"/>
+
+        <!-- 1. SELECCIÓN DE CATEGORÍA -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Categoría del Evento:"
+            android:textColor="@color/text_dark"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cg_categories"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_cita"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Cita"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"
+                    app:rippleColor="@color/yellow_primary"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_junta"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Junta"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"
+                    app:rippleColor="@color/yellow_primary"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_entrega"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Entrega de Proyecto"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"
+                    app:rippleColor="@color/yellow_primary"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_examen"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:text="Examen"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"
+                    app:rippleColor="@color/yellow_primary"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_otro"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Otros"
+                    android:textColor="@color/white"
+                    app:chipBackgroundColor="@color/bg_card"
+                    app:chipStrokeColor="@color/yellow_primary"
+                    app:chipStrokeWidth="1dp"
+                    app:rippleColor="@color/yellow_primary"/>
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <!-- 2. CAMPO DE FECHA -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Fecha (dd/mm/aaaa)"
+            app:hintTextColor="@color/yellow_primary"
+            app:boxStrokeColor="@color/yellow_primary"
+            app:startIconDrawable="@drawable/ic_calendar"
+            app:startIconTint="@color/yellow_primary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_event_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:focusable="false"
+                android:clickable="true"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- 3. CAMPO DE HORA -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Hora (hh:mm)"
+            app:hintTextColor="@color/yellow_primary"
+            app:boxStrokeColor="@color/yellow_primary"
+            app:startIconDrawable="@drawable/ic_info"
+            app:startIconTint="@color/yellow_primary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_event_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:focusable="false"
+                android:clickable="true"
+                android:inputType="none" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- 4. DESCRIPCIÓN -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="Breve descripción del evento"
+            app:hintTextColor="@color/yellow_primary"
+            app:boxStrokeColor="@color/yellow_primary">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_event_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:lines="3" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- 5. UBICACIÓN -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_select_location"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginBottom="16dp"
+            android:text="Seleccionar ubicación en el mapa"
+            android:textColor="@color/yellow_primary"
+            app:icon="@drawable/ic_search"
+            app:iconTint="@color/yellow_primary"
+            app:strokeColor="@color/yellow_dark" />
+
+        <!-- 6. CONTACTO -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_select_contact"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginBottom="16dp"
+            android:text="Seleccionar contacto de la agenda"
+            android:textColor="@color/yellow_primary"
+            app:icon="@drawable/ic_info"
+            app:iconTint="@color/yellow_primary"
+            app:strokeColor="@color/yellow_dark" />
+
+        <!-- 7. RECORDATORIO -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Recordatorio (Notificación):"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <Spinner
+            android:id="@+id/sp_reminder"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@android:drawable/btn_dropdown"
+            android:backgroundTint="@color/yellow_primary"
+            android:spinnerMode="dropdown"
+            android:layout_marginBottom="24dp"/>
+
+        <!-- BOTÓN FINAL DE GUARDAR -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save_event"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:backgroundTint="@color/yellow_primary"
+            android:text="Guardar Evento"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            app:cornerRadius="10dp"
+            app:elevation="4dp" />
+        <FrameLayout
+            android:id="@+id/nav_host_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/bg_background"
+            android:paddingBottom="56dp"/>
+    </LinearLayout>
+</ScrollView>

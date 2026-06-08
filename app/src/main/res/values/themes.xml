@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.ProyectoMoviles" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/yellow_primary</item>
+        <item name="colorPrimaryDark">@color/yellow_dark</item>
+    </style>
+
+    <style name="Theme.ProyectoMoviles" parent="Base.Theme.ProyectoMoviles" />
+</resources>

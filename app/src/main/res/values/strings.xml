@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">ProyectoMoviles</string>
+    <string name="menu_title_cloud">Nube y Seguridad</string>
+    <string name="menu_add">Añadir Eventos</string>
+    <string name="menu_query">Consultar y modificación de Eventos</string>
+    <string name="menu_calendar">Mostrar Calendario</string>
+    <string name="menu_backup">Realizar Respaldo en Dropbox o Google Drive</string>
+    <string name="menu_restore">Restaurar datos de Dropbox o Google Drive</string>
+    <string name="menu_about">Acerca de..</string>
+    <string name="menu_exit">Salir</string>
+    <string name="bottom_home">Inicio</string>
+    <string name="bottom_query">Consultar</string>
+    <string name="bottom_exit">Salir</string>
+
+    <string name="card_category_dummy">Entrega de Proyecto</string>
+    <string name="card_status_dummy">Pendiente</string>
+    <string name="card_desc_dummy">Breve descripción de lo que se tiene que realizar en el evento del organizador.</string>
+    <string name="card_datetime_dummy"> 05/06 - 15:00</string>
+    <string name="card_contact_dummy"> Alejandro</string>
+    <string name="card_location_dummy"> Ver Mapa</string>
+
+    <string-array name="reminder_options">
+        <item>Sin recordatorio</item>
+        <item>Al momento de la tarea</item>
+        <item>10 minutos antes</item>
+        <item>1 día antes</item>
+    </string-array>
+</resources>
