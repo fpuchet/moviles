@@ -40,20 +40,7 @@ class HomeFragment : Fragment() {
         val adaptador = EventAdapter(listaDePrueba)
         recyclerView.adapter = adaptador
 
-        // 5. UX Interactiva: Escuchar los clics en las tarjetas del Home para abrir el diálogo
-        recyclerView.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
-            override fun onChildViewAttachedToWindow(view: View) {
-                // Cuando la tarjeta se monta en la pantalla, le asignamos su evento de clic
-                view.setOnClickListener {
-                    abrirDialogoModificacion()
-                }
-            }
 
-            override fun onChildViewDetachedFromWindow(view: View) {
-                // Limpieza de memoria al desmontar la vista
-                view.setOnClickListener(null)
-            }
-        })
 
         return vista
     }

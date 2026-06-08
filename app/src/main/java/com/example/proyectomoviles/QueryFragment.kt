@@ -112,18 +112,6 @@ class QueryFragment : Fragment() {
 
         // 5. SOLUCIÓN INTERACTIVA REAL: Abrir diálogo al presionar un elemento del RecyclerView
         // Usamos un addOnItemTouchListener o una extensión simple para interceptar el clic sobre el contenedor
-        rvResults.addOnChildAttachStateChangeListener(object : RecyclerView.OnChildAttachStateChangeListener {
-            override fun onChildViewAttachedToWindow(view: View) {
-                // Cuando una tarjeta se dibuja en pantalla, le programamos su propio clic individual
-                view.setOnClickListener {
-                    abrirDialogoModificacion()
-                }
-            }
-
-            override fun onChildViewDetachedFromWindow(view: View) {
-                view.setOnClickListener(null)
-            }
-        })
 
         return vista
     }

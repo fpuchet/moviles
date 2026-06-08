@@ -79,6 +79,7 @@
                     android:id="@+id/tv_card_datetime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
                     android:textColor="@color/text_secondary"
                     android:textSize="11sp" />
             </LinearLayout>
@@ -99,6 +100,7 @@
                     android:id="@+id/tv_card_contact"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
                     android:textColor="@color/text_secondary"
                     android:textSize="11sp"
                     android:maxLines="1"
@@ -106,25 +108,33 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/btn_card_location_click"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.9"
                 android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
                 <ImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:src="@drawable/ic_search"
+                    android:src="@android:drawable/ic_menu_mylocation"
                     android:contentDescription="Icono Ubicacion"
                     app:tint="@color/yellow_primary" />
                 <TextView
                     android:id="@+id/tv_card_location"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
                     android:textColor="@color/yellow_primary"
                     android:textSize="11sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
             </LinearLayout>
+
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

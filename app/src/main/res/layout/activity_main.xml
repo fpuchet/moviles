@@ -23,10 +23,10 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/yellow_primary"
-                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
+                android:background="@color/bg_card"
+                app:titleTextColor="@color/yellow_primary"
+                app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
             <FrameLayout
                 android:id="@+id/nav_host_fragment"
                 android:layout_width="match_parent"
