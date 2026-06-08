@@ -4,6 +4,15 @@
         <item name="colorPrimary">@color/yellow_primary</item>
         <item name="colorPrimaryDark">@color/yellow_dark</item>
     </style>
+    <style name="CalendarDateTheme" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">#FFFFFF</item> </style>
 
+    <style name="CalendarWeekTheme" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">#B0B0B0</item> <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="CalendarHeaderTheme" parent="android:TextAppearance.DeviceDefault.Medium">
+        <item name="android:textColor">@color/yellow_primary</item> <item name="android:textStyle">bold</item>
+    </style>
     <style name="Theme.ProyectoMoviles" parent="Base.Theme.ProyectoMoviles" />
 </resources>

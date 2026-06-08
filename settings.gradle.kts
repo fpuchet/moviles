@@ -19,9 +19,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // AGREGADO: Repositorio obligatorio para descargar la librería del calendario
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
 rootProject.name = "ProyectoMoviles"
 include(":app")
- 

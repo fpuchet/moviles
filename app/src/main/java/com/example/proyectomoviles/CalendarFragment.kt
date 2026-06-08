@@ -4,56 +4,63 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CalendarView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.google.android.material.card.MaterialCardView
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class CalendarFragment : Fragment() {
 
+    private lateinit var adapterEvents: EventAdapter
+    private val listaFiltradaMutable = mutableListOf<Evento>()
+
+    private val todasLasTareas = listOf(
+        Evento("Entrega de Proyecto", "Llevar el avance de las pantallas fijas del organizador.", "08/06/2026", "Profesor Móviles", "Pendiente"),
+        Evento("Examen", "Evaluación del segundo parcial de compiladores.", "09/06/2026", "Academia", "Pendiente"),
+        Evento("Junta", "Revisión del modelado de datos.", "08/06/2026", "Carlos Ortega", "Realizado"),
+        Evento("Cita", "Firma de documentos de servicio social.", "15/06/2026", "INIFED", "Aplazado")
+    )
+
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val vista = inflater.inflate(R.layout.fragment_calendar, container, false)
 
-        val calendarView: CalendarView = vista.findViewById(R.id.cv_events_calendar)
-        val cardDetail: MaterialCardView = vista.findViewById(R.id.card_calendar_event_detail)
-        val tvCategory: TextView = vista.findViewById(R.id.tv_cal_detail_category)
-        val tvDesc: TextView = vista.findViewById(R.id.tv_cal_detail_desc)
-        val tvInfo: TextView = vista.findViewById(R.id.tv_cal_detail_info)
-        val tvStatus: TextView = vista.findViewById(R.id.tv_cal_detail_status)
+        val rvCalendarGrid: RecyclerView = vista.findViewById(R.id.rv_calendar_grid)
+        val tvTituloDinamico: TextView = vista.findViewById(R.id.tv_calendar_selected_title)
+        val rvEvents: RecyclerView = vista.findViewById(R.id.rv_calendar_events)
 
-        // Escuchar cuando el usuario cambia de día en el calendario
-        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            // Formatear el día seleccionado
-            val fechaSeleccionada = "$dayOfMonth/${month + 1}/$year"
+        // 1. Configurar la cuadrícula del calendario (7 días de la semana)
+        rvCalendarGrid.layoutManager = GridLayoutManager(requireContext(), 7)
 
-            // Simulación requerida por el PDF: si es el día 11 (como el ejemplo del PDF), muestra un evento
-            if (dayOfMonth == 11 || dayOfMonth == 15) {
-                cardDetail.visibility = View.VISIBLE
-                if (dayOfMonth == 11) {
-                    tvCategory.text = "Cita"
-                    tvDesc.text = "Cita para comer con el equipo de trabajo terminal."
-                    tvInfo.text = "Hora: 14:00 | Contacto: Alejandro"
-                    tvStatus.text = "Pendiente"
-                    tvStatus.setBackgroundColor(requireContext().getColor(R.color.status_pending))
-                } else {
-                    tvCategory.text = "Junta"
-                    tvDesc.text = "Revisión de requerimientos y diseño de base de datos."
-                    tvInfo.text = "Hora: 10:00 | Contacto: Lorenzo Castillo"
-                    tvStatus.text = "Realizado"
-                    tvStatus.setBackgroundColor(requireContext().getColor(R.color.status_completed))
-                }
-                Toast.makeText(requireContext(), "Eventos para el: $fechaSeleccionada", Toast.LENGTH_SHORT).show()
-            } else {
-                // Si es cualquier otro día, ocultamos la tarjeta indicando que está libre
-                cardDetail.visibility = View.GONE
-                Toast.makeText(requireContext(), "No hay tareas programadas para el: $fechaSeleccionada", Toast.LENGTH_SHORT).show()
-            }
+        // Generar días para Junio 2026 (Empieza en Lunes, agregamos un espacio en blanco para el Domingo)
+        val diasDeJunio = mutableListOf("")
+        for (i in 1..30) diasDeJunio.add(i.toString())
+
+        val calendarAdapter = CalendarDayAdapter(diasDeJunio, todasLasTareas, "06/2026") { fecha ->
+            tvTituloDinamico.text = "Eventos del $fecha:"
+            filtrarEventosPorFecha(fecha)
         }
+        rvCalendarGrid.adapter = calendarAdapter
+
+        // 2. Configurar la lista de eventos de abajo
+        rvEvents.layoutManager = LinearLayoutManager(requireContext())
+        adapterEvents = EventAdapter(listaFiltradaMutable)
+        rvEvents.adapter = adapterEvents
+
+        // Mostrar por defecto las tareas de hoy
+        filtrarEventosPorFecha("08/06/2026")
+        tvTituloDinamico.text = "Eventos del 08/06/2026:"
 
         return vista
+    }
+
+    private fun filtrarEventosPorFecha(fecha: String) {
+        listaFiltradaMutable.clear()
+        listaFiltradaMutable.addAll(todasLasTareas.filter { it.fecha == fecha })
+        adapterEvents.notifyDataSetChanged()
     }
 }

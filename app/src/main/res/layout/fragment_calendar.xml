@@ -4,104 +4,54 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="@color/bg_background">
+    android:background="#121212"
+    android:padding="16dp">
 
     <TextView
+        android:id="@+id/tv_calendar_month_year"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Mostrar Calendario"
-        android:textColor="@color/yellow_primary"
-        android:textSize="22sp"
+        android:text="Junio 2026"
+        android:textColor="@color/white"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:paddingBottom="12dp"/>
+        android:gravity="center"
+        android:layout_marginBottom="12dp"/>
 
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:cardCornerRadius="12dp"
-        app:cardBackgroundColor="@color/bg_card"
-        app:strokeColor="@color/yellow_dark"
-        app:strokeWidth="1dp">
+        android:orientation="horizontal"
+        android:weightSum="7"
+        android:layout_marginBottom="8dp">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="D" android:textColor="#B0B0B0" android:gravity="center" android:textStyle="bold"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="L" android:textColor="#B0B0B0" android:gravity="center" android:textStyle="bold"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="M" android:textColor="#B0B0B0" android:gravity="center" android:textStyle="bold"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="M" android:textColor="#B0B0B0" android:gravity="center" android:textStyle="bold"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="J" android:textColor="#B0B0B0" android:gravity="center" android:textStyle="bold"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="V" android:textColor="#B0B0B0" android:gravity="center" android:textStyle="bold"/>
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="S" android:textColor="#B0B0B0" android:gravity="center" android:textStyle="bold"/>
+    </LinearLayout>
 
-        <CalendarView
-            android:id="@+id/cv_events_calendar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark" />
-    </com.google.android.material.card.MaterialCardView>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_calendar_grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"/>
 
     <TextView
+        android:id="@+id/tv_calendar_selected_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Eventos en la fecha seleccionada:"
+        android:text="Eventos programados:"
         android:textColor="@color/yellow_primary"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginBottom="8dp"/>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_calendar_event_detail"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_calendar_events"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        app:cardBackgroundColor="@color/bg_card"
-        app:strokeColor="@color/yellow_dark"
-        app:strokeWidth="1dp"
-        android:visibility="visible">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/tv_cal_detail_category"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Entrega de Proyecto"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_cal_detail_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:text="Pendiente"
-                    android:background="@color/status_pending"
-                    android:textColor="@color/black"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="4dp" />
-            </RelativeLayout>
-
-            <TextView
-                android:id="@+id/tv_cal_detail_desc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Llevar el avance de las pantallas fijas del organizador al laboratorio."
-                android:textColor="@color/text_secondary"
-                android:textSize="14sp" />
-
-            <TextView
-                android:id="@+id/tv_cal_detail_info"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Hora: 12:00 | Contacto: Profesor Móviles"
-                android:textColor="@color/yellow_primary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
 </LinearLayout>
