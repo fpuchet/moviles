@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
                 // Opciones secundarias del menú
                 R.id.nav_backup -> Toast.makeText(this, "Respaldo en la nube ejecutado", Toast.LENGTH_SHORT).show()
                 R.id.nav_restore -> Toast.makeText(this, "Datos restaurados con éxito", Toast.LENGTH_SHORT).show()
-                R.id.nav_about -> Toast.makeText(this, "Organizador de Tareas v1.0 - Desarrollado por Alexander", Toast.LENGTH_LONG).show()
+                R.id.nav_about -> Toast.makeText(this, "Organizador de Tareas v1.0 - Desarrollado por Team Ñañis", Toast.LENGTH_LONG).show()
                 R.id.nav_exit -> finish()
             }
             drawerLayout.closeDrawer(GravityCompat.START)
