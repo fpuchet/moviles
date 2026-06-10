@@ -1,7 +1,10 @@
 package com.example.proyectomoviles
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
+import android.provider.ContactsContract
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,14 +12,50 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import androidx.fragment.app.Fragment
 import java.util.Calendar
+import java.util.Locale
 
 class AddEventFragment : Fragment() {
+
+    private lateinit var dbHelper: DatabaseHelper
+
+    // Variables asignadas exactamente a tus tipos de componentes del XML
+    private lateinit var btnSelectContact: MaterialButton
+    private lateinit var btnSelectLocation: MaterialButton
+
+    private var contactoSeleccionado: String = ""
+    private var ubicacionSeleccionada: String = "ESCOM IPN" // Valor base por defecto
+
+    // Registrador moderno para capturar el contacto seleccionado de la agenda nativa
+    private val pickContactLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val contactUri = result.data?.data ?: return@registerForActivityResult
+            val proyeccion = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
+
+            try {
+                val cursor = requireContext().contentResolver.query(contactUri, proyeccion, null, null, null)
+                if (cursor != null && cursor.moveToFirst()) {
+                    val columnaNombre = cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME)
+                    val nombreContacto = cursor.getString(columnaNombre)
+
+                    // Guardar el valor internamente y actualizar visualmente tu MaterialButton
+                    contactoSeleccionado = nombreContacto
+                    btnSelectContact.text = "Contacto: $nombreContacto"
+                }
+                cursor?.close()
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Error al recuperar el contacto de la agenda", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,7 +64,10 @@ class AddEventFragment : Fragment() {
     ): View? {
         val vista = inflater.inflate(R.layout.fragment_add_event, container, false)
 
-        // 1. Configurar Spinner de Recordatorios
+        // 0. Inicializar el ayudante de la Base de Datos local
+        dbHelper = DatabaseHelper(requireContext())
+
+        // 1. Configurar Spinner de Recordatorios (Sincronizado con sp_reminder)
         val spinnerReminder: Spinner = vista.findViewById(R.id.sp_reminder)
         val adaptadorReminder = ArrayAdapter.createFromResource(
             requireContext(),
@@ -36,9 +78,9 @@ class AddEventFragment : Fragment() {
         }
         spinnerReminder.adapter = adaptadorReminder
 
-        // 2. Lógica interactiva de los Chips de Categorías
+        // 2. Lógica interactiva original de los Chips de Categorías (cg_categories)
         val chipGroup: ChipGroup = vista.findViewById(R.id.cg_categories)
-        var categoriaSeleccionada = "Cita" // Valor por defecto inicial
+        var categoriaSeleccionada = "Cita"
 
         val defaultChip: Chip = vista.findViewById(R.id.chip_cita)
         defaultChip.isChecked = true
@@ -55,11 +97,11 @@ class AddEventFragment : Fragment() {
                 val selectedChip = group.findViewById<Chip>(checkedIds.first())
                 selectedChip.setChipBackgroundColorResource(R.color.yellow_primary)
                 selectedChip.setTextColor(requireContext().getColor(R.color.black))
-                categoriaSeleccionada = selectedChip.text.toString() // Guardamos el nombre de la categoría activa
+                categoriaSeleccionada = selectedChip.text.toString()
             }
         }
 
-        // 3. INTERACTIVIDAD: Selector de Fecha
+        // 3. Selector de Fecha (et_event_date)
         val etEventDate: TextInputEditText = vista.findViewById(R.id.et_event_date)
         etEventDate.setOnClickListener {
             val calendario = Calendar.getInstance()
@@ -70,7 +112,7 @@ class AddEventFragment : Fragment() {
             val datePicker = DatePickerDialog(
                 requireContext(),
                 { _, anioSeleccionado, mesSeleccionado, diaSeleccionado ->
-                    val fechaFormateada = String.format("%02d/%02d/%d", diaSeleccionado, mesSeleccionado + 1, anioSeleccionado)
+                    val fechaFormateada = String.format(Locale.getDefault(), "%02d/%02d/%d", diaSeleccionado, mesSeleccionado + 1, anioSeleccionado)
                     etEventDate.setText(fechaFormateada)
                 },
                 anio, mes, dia
@@ -78,7 +120,7 @@ class AddEventFragment : Fragment() {
             datePicker.show()
         }
 
-        // 4. INTERACTIVIDAD: Selector de Hora
+        // 4. Selector de Hora (et_event_time)
         val etEventTime: TextInputEditText = vista.findViewById(R.id.et_event_time)
         etEventTime.setOnClickListener {
             val calendario = Calendar.getInstance()
@@ -88,48 +130,89 @@ class AddEventFragment : Fragment() {
             val timePicker = TimePickerDialog(
                 requireContext(),
                 { _, horaSeleccionada, minutoSeleccionado ->
-                    val horaFormateada = String.format("%02d:%02d", horaSeleccionada, minutoSeleccionado)
+                    val horaFormateada = String.format(Locale.getDefault(), "%02d:%02d", horaSeleccionada, minutoSeleccionado)
                     etEventTime.setText(horaFormateada)
                 },
                 horaActual, minutoActual, true
             )
             timePicker.show()
         }
-        // 1. Vincular el Spinner de Estatus del XML
+
+        // 5. Configurar Spinner de Estatus (sp_add_status)
         val spinnerStatus: Spinner = vista.findViewById(R.id.sp_add_status)
-
-        // 2. Definir los estados obligatorios del PDF
         val listaEstados = listOf("Pendiente", "Realizado", "Aplazado")
-
-        // 3. Crear el adaptador nativo y asignarlo
         val adapterEstados = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, listaEstados)
         adapterEstados.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerStatus.adapter = adapterEstados
-        // 5. VALIDACIÓN Y CAPTURA: Botón Guardar Evento
+
+        // 6. ASIGNACIÓN EXACTA DE TUS BOTONES DEL XML
+        btnSelectContact = vista.findViewById(R.id.btn_select_contact)
+        btnSelectLocation = vista.findViewById(R.id.btn_select_location)
+
+        // Evento de clic para disparar la agenda de contactos nativa de la tablet
+        btnSelectContact.setOnClickListener {
+            try {
+                val intentContactos = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
+                pickContactLauncher.launch(intentContactos)
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "No se pudo abrir la agenda de contactos", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Evento de clic para la ubicación (Como marca la indicación: "puede faltar el mapa")
+        btnSelectLocation.setOnClickListener {
+            ubicacionSeleccionada = "Laboratorio de Móviles ESCOM"
+            btnSelectLocation.text = "Ubicación: $ubicacionSeleccionada"
+            Toast.makeText(requireContext(), "Ubicación fijada de forma local", Toast.LENGTH_SHORT).show()
+        }
+
+        // 7. VALIDACIÓN, CAPTURA Y GUARDADO REAL EN SQLITE
         val etEventDescription: TextInputEditText = vista.findViewById(R.id.et_event_description)
         val btnSaveEvent: MaterialButton = vista.findViewById(R.id.btn_save_event)
 
         btnSaveEvent.setOnClickListener {
-            // Extraer el texto ingresado por el usuario quitando espacios vacíos extra (.trim())
             val fecha = etEventDate.text.toString().trim()
             val hora = etEventTime.text.toString().trim()
             val descripcion = etEventDescription.text.toString().trim()
+            val estatus = spinnerStatus.selectedItem.toString()
             val recordatorio = spinnerReminder.selectedItem.toString()
 
-            // REGLAS DE VALIDACIÓN DE CAMPOS OBLIGATORIOS
+            // REGLAS DE VALIDACIÓN BASADAS EN TU ESTRUCTURA
             if (fecha.isEmpty()) {
                 Toast.makeText(requireContext(), "Por favor, selecciona una fecha para el evento", Toast.LENGTH_SHORT).show()
             } else if (hora.isEmpty()) {
                 Toast.makeText(requireContext(), "Por favor, selecciona una hora para el evento", Toast.LENGTH_SHORT).show()
             } else if (descripcion.isEmpty()) {
                 Toast.makeText(requireContext(), "La descripción del evento no puede quedar vacía", Toast.LENGTH_SHORT).show()
+            } else if (contactoSeleccionado.isEmpty()) {
+                Toast.makeText(requireContext(), "Por favor, selecciona un contacto de la agenda", Toast.LENGTH_SHORT).show()
             } else {
-                // Si todo está lleno, simulamos una captura exitosa con toda la información limpia
-                val mensajeExito = "¡Evento Guardado!\nCategoría: $categoriaSeleccionada\nFecha: $fecha - $hora\nNotificación: $recordatorio"
-                Toast.makeText(requireContext(), mensajeExito, Toast.LENGTH_LONG).show()
+                // GUARDADO FÍSICO DIRECTO EN TU BASE DE DATOS SQLITE
+                val idGenerado = dbHelper.insertarEvento(
+                    categoria = categoriaSeleccionada,
+                    fecha = fecha,
+                    hora = hora,
+                    descripcion = descripcion,
+                    estatus = estatus,
+                    ubicacion = ubicacionSeleccionada,
+                    contacto = contactoSeleccionado,
+                    recordatorio = recordatorio
+                )
 
-                // Limpiar el campo de descripción después de guardar para que quede listo para otro registro
-                etEventDescription.setText("")
+                if (idGenerado != -1L) {
+                    val mensajeExito = "¡Evento Guardado en SQLite!\nID: $idGenerado | Con: $contactoSeleccionado"
+                    Toast.makeText(requireContext(), mensajeExito, Toast.LENGTH_LONG).show()
+
+                    // Limpiar el formulario completo tras guardar de forma exitosa
+                    etEventDate.setText("")
+                    etEventTime.setText("")
+                    etEventDescription.setText("")
+                    contactoSeleccionado = ""
+                    btnSelectContact.text = "Seleccionar contacto de la agenda"
+                    btnSelectLocation.text = "Seleccionar ubicación en el mapa"
+                } else {
+                    Toast.makeText(requireContext(), "Error crítico al guardar en SQLite", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
