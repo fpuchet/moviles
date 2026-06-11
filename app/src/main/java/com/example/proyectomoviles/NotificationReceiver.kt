@@ -18,6 +18,17 @@ class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null) return
 
+        android.widget.Toast.makeText(
+            context,
+            "Receiver ejecutado",
+            android.widget.Toast.LENGTH_LONG
+        ).show()
+
+        android.util.Log.d(
+            "NOTIF_DEBUG",
+            "Receiver ejecutado"
+        )
+
         // Extraer los datos del evento
         val titulo = intent?.getStringExtra("titulo") ?: "Recordatorio de Evento"
         val descripcion = intent?.getStringExtra("descripcion") ?: "Tienes una tarea pendiente ahora."

@@ -1,5 +1,9 @@
 package com.example.proyectomoviles
 
+import android.app.Activity
+import android.content.Intent
+import android.provider.ContactsContract
+import androidx.activity.result.contract.ActivityResultContracts
 import android.app.DatePickerDialog
 import android.database.Cursor
 import android.os.Bundle
@@ -30,6 +34,50 @@ class QueryFragment : Fragment() {
     private var criterioConsulta: String = "por rango"
     private var categoriaFiltro: String = "todos"
 
+    private var etContactoActual: TextInputEditText? = null
+
+    private val pickContactLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+
+        if (result.resultCode == Activity.RESULT_OK) {
+
+            val contactUri = result.data?.data ?: return@registerForActivityResult
+
+            try {
+
+                val cursor = requireContext().contentResolver.query(
+                    contactUri,
+                    arrayOf(ContactsContract.Contacts.DISPLAY_NAME),
+                    null,
+                    null,
+                    null
+                )
+
+                if (cursor != null && cursor.moveToFirst()) {
+
+                    val nombreContacto = cursor.getString(
+                        cursor.getColumnIndexOrThrow(
+                            ContactsContract.Contacts.DISPLAY_NAME
+                        )
+                    )
+
+                    etContactoActual?.setText(nombreContacto)
+                }
+
+                cursor?.close()
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    requireContext(),
+                    "Error al recuperar contacto",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,7 +94,6 @@ class QueryFragment : Fragment() {
         val etStart: TextInputEditText = vista.findViewById(R.id.et_query_start_date)
         val etEnd: TextInputEditText = vista.findViewById(R.id.et_query_end_date)
 
-        // Forzar estados visuales iniciales seguros
         vista.findViewById<Chip>(R.id.chip_by_range).isChecked = true
         vista.findViewById<Chip>(R.id.chip_q_all).isChecked = true
 
@@ -98,9 +145,7 @@ class QueryFragment : Fragment() {
                 selectedChip.setChipBackgroundColorResource(R.color.yellow_primary)
                 selectedChip.setTextColor(requireContext().getColor(R.color.black))
 
-                // Unificar a minúsculas o texto plano según los datos de tu SQLite
-                val textoChip = selectedChip.text.toString()
-                categoriaFiltro = if (textoChip.equals("Todos", ignoreCase = true)) "todos" else textoChip
+                categoriaFiltro = selectedChip.text.toString().lowercase(Locale.getDefault())
             }
         }
 
@@ -141,6 +186,11 @@ class QueryFragment : Fragment() {
         val rvResults: RecyclerView = vista.findViewById(R.id.rv_query_results)
         rvResults.layoutManager = LinearLayoutManager(requireContext())
 
+        adapterQuery = EventAdapter(listaResultadosDinamicos) { eventoSeleccionado, posicion ->
+            abrirDialogoModificacionReal(eventoSeleccionado, posicion, rvResults)
+        }
+        rvResults.adapter = adapterQuery
+
         val btnRunQuery: MaterialButton = vista.findViewById(R.id.btn_run_query)
         btnRunQuery.setOnClickListener {
             val inicio = etStart.text.toString().trim()
@@ -149,29 +199,30 @@ class QueryFragment : Fragment() {
             if (inicio.isEmpty() && criterioConsulta == "por rango") {
                 Toast.makeText(requireContext(), "Por favor indica las fechas", Toast.LENGTH_SHORT).show()
             } else {
-                ejecutarConsultaLocalDefinitiva(inicio, fin, rvResults)
+                ejecutarConsultaLocalDefinitiva(rvResults)
             }
         }
 
         return vista
     }
 
-    /**
-     * Extrae de forma masiva limpiando variaciones de formato e inyectando comodines cruzados.
-     */
-    private fun ejecutarConsultaLocalDefinitiva(inicio: String, fin: String, recyclerView: RecyclerView) {
+    private fun ejecutarConsultaLocalDefinitiva(rvResults: RecyclerView) {
         listaResultadosDinamicos.clear()
+
+        val etStart: TextInputEditText? = view?.findViewById(R.id.et_query_start_date)
+        val etEnd: TextInputEditText? = view?.findViewById(R.id.et_query_end_date)
+
+        val inicio = etStart?.text.toString().trim()
+        val fin = etEnd?.text.toString().trim()
 
         var fInicio: String? = inicio.ifEmpty { null }
         var fFin: String? = fin.ifEmpty { null }
         var mesStr: String? = null
         var anioStr: String? = null
 
-        // ALERTA DE FORMATO ALTERNO: Si el usuario busca por día, intentamos extraer variaciones
-        // (por si acaso guardaste como "10/06/2026" o como "2026-06-10")
         var queryCriterioLimpio = criterioConsulta
         if (criterioConsulta.contains("día") || criterioConsulta.contains("dia")) {
-            queryCriterioLimpio = "por día"
+            queryCriterioLimpio = "por dia"
         } else if (criterioConsulta.contains("mes")) {
             queryCriterioLimpio = "por mes"
             mesStr = inicio
@@ -182,20 +233,13 @@ class QueryFragment : Fragment() {
             fInicio = null
         }
 
-        // Si se busca por Año o Mes, nos aseguramos que tu base de datos reciba el valor limpio
         val categoriaFinal = if (categoriaFiltro.equals("Todos", ignoreCase = true)) "todos" else categoriaFiltro
 
-        val cursor: Cursor = dbHelper.consultarEventosAvanzado(
-            queryCriterioLimpio,
-            fInicio,
-            fFin,
-            mesStr,
-            anioStr,
-            categoriaFinal
-        )
+        val cursor: Cursor = dbHelper.consultarEventosAvanzado(queryCriterioLimpio, fInicio, fFin, mesStr, anioStr, categoriaFinal)
 
         if (cursor.moveToFirst()) {
             do {
+                val id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ID))
                 val categoria = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_CATEGORIA))
                 val fecha = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_FECHA))
                 val hora = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_HORA))
@@ -203,51 +247,136 @@ class QueryFragment : Fragment() {
                 val estatus = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_ESTATUS))
                 val contacto = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_CONTACTO))
 
-                listaResultadosDinamicos.add(Evento(categoria, descripcion, "$fecha - $hora", contacto, estatus))
+                val ubicacion = try {
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_UBICACION))
+                } catch (e: Exception) { "ESCOM IPN" }
+
+                val recordatorio = try {
+                    cursor.getString(cursor.getColumnIndexOrThrow(DatabaseHelper.COL_RECORDATORIO))
+                } catch (e: Exception) { "Ninguno" }
+
+                listaResultadosDinamicos.add(Evento(id, categoria, descripcion, "$fecha - $hora", contacto, estatus, ubicacion, hora, recordatorio))
             } while (cursor.moveToNext())
         }
         cursor.close()
 
-        // RESPALDO DE CONTROL AGRESIVO: Si la consulta estricta falló por el formateo del Helper,
-        // ejecutamos un escaneo tolerante directo de respaldo para jalar los 4 eventos sí o sí.
         if (listaResultadosDinamicos.isEmpty()) {
-            val cursorRespaldo = dbHelper.readableDatabase.rawQuery("SELECT * FROM eventos", null)
-            if (cursorRespaldo.moveToFirst()) {
-                do {
-                    val cat = cursorRespaldo.getString(cursorRespaldo.getColumnIndexOrThrow(DatabaseHelper.COL_CATEGORIA))
-                    val fec = cursorRespaldo.getString(cursorRespaldo.getColumnIndexOrThrow(DatabaseHelper.COL_FECHA))
-                    val hor = cursorRespaldo.getString(cursorRespaldo.getColumnIndexOrThrow(DatabaseHelper.COL_HORA))
-                    val des = cursorRespaldo.getString(cursorRespaldo.getColumnIndexOrThrow(DatabaseHelper.COL_DESCRIPCION))
-                    val est = cursorRespaldo.getString(cursorRespaldo.getColumnIndexOrThrow(DatabaseHelper.COL_ESTATUS))
-                    val con = cursorRespaldo.getString(cursorRespaldo.getColumnIndexOrThrow(DatabaseHelper.COL_CONTACTO))
+            Toast.makeText(requireContext(), "No se encontraron eventos.", Toast.LENGTH_SHORT).show()
+        }
 
-                    // Filtrado manual tolerante por código para burlar cualquier error de SQL del Helper
-                    val cumpleCategoria = categoriaFinal.equals("todos", ignoreCase = true) || cat.equals(categoriaFinal, ignoreCase = true)
+        adapterQuery = EventAdapter(listaResultadosDinamicos) { eventoSeleccionado, posicion ->
+            abrirDialogoModificacionReal(eventoSeleccionado, posicion, rvResults)
+        }
+        rvResults.adapter = adapterQuery
+    }
 
-                    var cumpleFecha = false
-                    when (queryCriterioLimpio) {
-                        "por año" -> cumpleFecha = fec.contains(anioStr ?: "")
-                        "por mes" -> cumpleFecha = fec.contains("/${mesStr}/") || fec.contains("-${mesStr}-")
-                        "por día" -> cumpleFecha = fec.equals(inicio, ignoreCase = true) || fec.contains(inicio)
-                        "por rango" -> cumpleFecha = true // Respaldo simplificado
-                    }
+    private fun abrirDialogoModificacionReal(evento: Evento, posicion: Int, recyclerView: RecyclerView) {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_edit_event, null)
+        val dialog = AlertDialog.Builder(requireContext()).setView(dialogView).create()
 
-                    if (cumpleCategoria && cumpleFecha) {
-                        listaResultadosDinamicos.add(Evento(cat, des, "$fec - $hor", con, est))
-                    }
-                } while (cursorRespaldo.moveToNext())
+        val spinnerStatus: Spinner = dialogView.findViewById(R.id.sp_dialog_status)
+        val etContacto: TextInputEditText = dialogView.findViewById(R.id.et_dialog_contact)
+        val btnLocation: MaterialButton = dialogView.findViewById(R.id.btn_dialog_location)
+        val btnUpdate: MaterialButton = dialogView.findViewById(R.id.btn_dialog_update)
+        val btnDelete: MaterialButton = dialogView.findViewById(R.id.btn_dialog_delete)
+
+        // ==========================================
+        // CONVERTIMOS EL TEXT INPUT EN UN SELECTOR
+        // ==========================================
+        etContacto.isFocusable = false
+        etContacto.isClickable = true
+        etContacto.setText(evento.contacto)
+
+        etContacto.setOnClickListener {
+
+            etContactoActual = etContacto
+
+            try {
+
+                val intentContactos = Intent(
+                    Intent.ACTION_PICK,
+                    ContactsContract.Contacts.CONTENT_URI
+                )
+
+                pickContactLauncher.launch(intentContactos)
+
+            } catch (e: Exception) {
+
+                Toast.makeText(
+                    requireContext(),
+                    "No se pudo abrir la agenda",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-            cursorRespaldo.close()
+        }
+        // ==========================================
+
+        val listaEstados = listOf("Pendiente", "Realizado", "Aplazado")
+        val adapterEstados = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, listaEstados)
+        adapterEstados.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerStatus.adapter = adapterEstados
+
+        val indiceEstatus = listaEstados.indexOf(evento.estatus)
+        if (indiceEstatus != -1) {
+            spinnerStatus.setSelection(indiceEstatus)
         }
 
-        // Informar el resultado real en la pantalla de la tablet Lenovo
-        if (listaResultadosDinamicos.isEmpty()) {
-            Toast.makeText(requireContext(), "No se encontraron eventos coincidentes.", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(requireContext(), "Éxito: ¡Se desplegaron los ${listaResultadosDinamicos.size} eventos guardados!", Toast.LENGTH_SHORT).show()
+        var nuevaUbicacion = evento.ubicacion
+        btnLocation.text = "Ubicación: $nuevaUbicacion"
+
+        btnLocation.setOnClickListener {
+            val opcionesLugares = arrayOf("ESCOM IPN", "Laboratorio de Móviles", "Cubículo de Profesores", "Biblioteca", "Casa", "Trabajo")
+            AlertDialog.Builder(requireContext())
+                .setTitle("Cambiar Ubicación")
+                .setItems(opcionesLugares) { _, pos ->
+                    nuevaUbicacion = opcionesLugares[pos]
+                    btnLocation.text = "Ubicación: $nuevaUbicacion"
+                }.show()
         }
 
-        adapterQuery = EventAdapter(listaResultadosDinamicos)
-        recyclerView.adapter = adapterQuery
+        val fechaLimpia = evento.fecha.split(" - ")[0].trim()
+
+        btnUpdate.setOnClickListener {
+            val nuevoEstatus = spinnerStatus.selectedItem.toString()
+            val nuevoContacto = etContacto.text.toString().trim()
+
+            val filasAfectadas = dbHelper.actualizarEvento(
+                id = evento.id,
+                categoria = evento.categoria,
+                fecha = fechaLimpia,
+                hora = evento.horaOriginal,
+                descripcion = evento.descripcion,
+                estatus = nuevoEstatus,
+                ubicacion = nuevaUbicacion,
+                contacto = nuevoContacto,
+                recordatorio = evento.recordatorioOriginal
+            )
+
+            if (filasAfectadas > 0) {
+                Toast.makeText(requireContext(), "¡Evento actualizado con éxito!", Toast.LENGTH_SHORT).show()
+                evento.estatus = nuevoEstatus
+                evento.contacto = nuevoContacto
+                evento.ubicacion = nuevaUbicacion
+                recyclerView.adapter?.notifyItemChanged(posicion)
+            } else {
+                Toast.makeText(requireContext(), "Error al actualizar en la base de datos", Toast.LENGTH_SHORT).show()
+            }
+            dialog.dismiss()
+        }
+
+        btnDelete.setOnClickListener {
+            val filasEliminadas = dbHelper.eliminarEvento(evento.id)
+
+            if (filasEliminadas > 0) {
+                Toast.makeText(requireContext(), "Evento eliminado permanentemente", Toast.LENGTH_SHORT).show()
+                listaResultadosDinamicos.removeAt(posicion)
+                recyclerView.adapter?.notifyItemRemoved(posicion)
+            } else {
+                Toast.makeText(requireContext(), "No se pudo eliminar el registro", Toast.LENGTH_SHORT).show()
+            }
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }

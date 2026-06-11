@@ -200,7 +200,36 @@ class AddEventFragment : Fragment() {
                 )
 
                 if (idGenerado != -1L) {
+
+                    val partesFecha = fecha.split("/")
+                    val partesHora = hora.split(":")
+
+                    val calendarioEvento = Calendar.getInstance().apply {
+                        set(
+                            partesFecha[2].toInt(),           // año
+                            partesFecha[1].toInt() - 1,       // mes
+                            partesFecha[0].toInt(),           // día
+                            partesHora[0].toInt(),           // hora
+                            partesHora[1].toInt(),           // minuto
+                            0
+                        )
+                    }
+                    Toast.makeText(
+                        requireContext(),
+                        "Recordatorio seleccionado: $recordatorio",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    NotificationManagerHelper(requireContext())
+                        .programarRecordatorio(
+                            idEvento = idGenerado.toInt(),
+                            titulo = categoriaSeleccionada,
+                            descripcion = descripcion,
+                            calendarTarget = calendarioEvento,
+                            tipoRecordatorio = recordatorio
+                        )
                     val mensajeExito = "¡Evento Guardado en SQLite!\nID: $idGenerado | Con: $contactoSeleccionado"
+
                     Toast.makeText(requireContext(), mensajeExito, Toast.LENGTH_LONG).show()
 
                     // Limpiar el formulario completo tras guardar de forma exitosa
@@ -210,6 +239,9 @@ class AddEventFragment : Fragment() {
                     contactoSeleccionado = ""
                     btnSelectContact.text = "Seleccionar contacto de la agenda"
                     btnSelectLocation.text = "Seleccionar ubicación en el mapa"
+
+                    // Regresar a la pantalla anterior
+                    parentFragmentManager.popBackStack()
                 } else {
                     Toast.makeText(requireContext(), "Error crítico al guardar en SQLite", Toast.LENGTH_SHORT).show()
                 }
